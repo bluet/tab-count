@@ -12,8 +12,12 @@ function updateBadgeText() {
     updateBadgeTitle(allWindowsTabCount);
   } else {
     //Use callback
-    //This feature is currently disabled from options.html and options.js
+    // FIXME: This feature is currently disabled from options.html and options.js
     count = getCurrentWindowTabs(updateCurrentWindowBadge);
+    // chrome.tabs.query({currentWindow:true}, function(tabs) {
+    //   chrome.browserAction.setBadgeText({text: String(tabs.length)});
+    //   updateBadgeTitle(tabs.length);
+    // });
   }
 }
 
@@ -41,7 +45,7 @@ function registerTabDedupeHandler() {
       if (changeInfo.url) {
         // check if any other tabs with different Ids exist with same URL
         chrome.tabs.query({'url': changeInfo.url}, function(tabs) {
-          if(tabs.length == 2) {
+          if(tabs.length == 2 && changeInfo.url != "chrome://newtab/") {
             var oldTab = tabs[0].id == tabId ? tabs[1] : tabs[0];
             // This is a new duplicate
             var dedupe = confirm(
@@ -102,6 +106,11 @@ function init() {
   
   // Action taken when a windows is closed.
   chrome.windows.onRemoved.addListener(function(tab) {
+    getAllStats(displayResults);
+  });
+
+  // to change badge text on switching current tab
+  chrome.windows.onFocusChanged.addListener(function(tab) {
     getAllStats(displayResults);
   });
   
