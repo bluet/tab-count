@@ -1,9 +1,7 @@
-
 const tabs = document.querySelectorAll(".tab-button");
 const tabContents = document.querySelectorAll(".tab-content");
 const searchInput = document.getElementById("searchInput");
 let currentItemIndex = 0;
-
 
 function addItems (tabContent, items, prefix) {
 	items.forEach((item) => {
@@ -18,22 +16,25 @@ function addItems (tabContent, items, prefix) {
 
 		// if click on the item, pass the tabID and windowID to the function goToOpenedTab
 		// if click on the remove button, pass the tabID to the function closeOpenedTab
-		listItem.addEventListener("click", (function (item) {
-			return function (event) {
-				// console.log("listItem click");
-				// console.log("listItem event.target: ", event.target);
-				if (event.target.classList.contains("remove-btn")) {
-					// console.log("listItem remove-btn click");
-					event.target.parentElement.remove();
-					closeOpenedTab(item.id);
-					updateCounterText();
-				} else {
-					// console.log("listItem goToOpenedTab click");
-					goToOpenedTab(item.id, item.windowId);
-					updateCounterText();
-				}
-			};
-		})(item));
+		listItem.addEventListener(
+			"click",
+			(function (item) {
+				return function (event) {
+					// console.log("listItem click");
+					// console.log("listItem event.target: ", event.target);
+					if (event.target.classList.contains("remove-btn")) {
+						// console.log("listItem remove-btn click");
+						event.target.parentElement.remove();
+						closeOpenedTab(item.id);
+						updateCounterText();
+					} else {
+						// console.log("listItem goToOpenedTab click");
+						goToOpenedTab(item.id, item.windowId);
+						updateCounterText();
+					}
+				};
+			})(item)
+		);
 
 		tabContent.appendChild(listItem);
 	});
@@ -53,7 +54,6 @@ function addItems (tabContent, items, prefix) {
 // }
 // addSampleItems(document.getElementById('currentWindow'), 15, 'Sample');
 
-
 // function to display the selected tab
 function goToOpenedTab (tabID, windowID) {
 	// console.log("goToOpenedTab tabID: ", tabID);
@@ -69,7 +69,6 @@ function closeOpenedTab (tabID) {
 	// reload popup to refresh the count and links
 	window.location.reload();
 }
-
 
 function updateSearchPlaceholder (count) {
 	const activeTabContent = document.querySelector(".tab-content.active");
@@ -97,7 +96,8 @@ function updateCounterText (count) {
 		document.getElementById("tabTitleCurrent").innerHTML = `Current (${itemCount} )`;
 		// count the number of windows and the number of tabs in all windows
 		chrome.windows.getAll({ "populate": true }, (window_list) => {
-			document.getElementById("tabTitleAll").innerHTML = `All (${allWindowItems.length} in ${window_list.length})`;
+			document.getElementById("tabTitleAll").innerHTML
+				= `All (${allWindowItems.length} in ${window_list.length})`;
 		});
 	} else if (activeTabButton.id === "tabTitleAll") {
 		const itemCount = count !== undefined ? count : allWindowItems.length;
@@ -105,7 +105,8 @@ function updateCounterText (count) {
 		// count the number of windows
 		chrome.windows.getAll({ "populate": true }, (window_list) => {
 			// get the number of tabs in all windows
-			document.getElementById("tabTitleAll").innerHTML = `All (${itemCount} in ${window_list.length})`;
+			document.getElementById("tabTitleAll").innerHTML
+				= `All (${itemCount} in ${window_list.length})`;
 		});
 	}
 }
@@ -124,11 +125,9 @@ function getAllTabs (callback) {
 	});
 }
 
-
 function init () {
 	// Initialize the search placeholder with the count of items in the active tab
 	// updateCounterText();
-
 
 	getCurrentWindowTabs((tabs) => {
 		addItems(document.getElementById("currentWindow"), tabs, "");
@@ -167,22 +166,27 @@ function init () {
 		const items = activeTabContent.querySelectorAll(".list-item");
 		let visibleCount = 0;
 
-		if (items.length === 0) {return;}
+		if (items.length === 0) {
+			return;
+		}
 
 		items.forEach((item) => {
 			const text = item.textContent.toLowerCase();
 			const isVisible = text.includes(searchTerm);
 			item.style.display = isVisible ? "block" : "none";
-			if (isVisible) {visibleCount++;}
+			if (isVisible) {
+				visibleCount++;
+			}
 		});
 
 		updateCounterText(visibleCount);
 	});
 
-
 	// Keyboard navigation and selection for list items
 	document.addEventListener("keydown", (e) => {
-		const currentTabIndex = [...tabs].findIndex((tab) => {return tab.classList.contains("active");});
+		const currentTabIndex = [...tabs].findIndex((tab) => {
+			return tab.classList.contains("active");
+		});
 		const activeTabContent = document.querySelector(".tab-content.active");
 		const items = [...activeTabContent.querySelectorAll(".list-item")];
 
@@ -190,7 +194,9 @@ function init () {
 		let newTabIndex;
 		let selectedItems;
 
-		if (items.length === 0) {return;}
+		if (items.length === 0) {
+			return;
+		}
 
 		switch (e.key) {
 		case "ArrowLeft":
@@ -233,11 +239,16 @@ function init () {
 		case " ":
 			e.preventDefault();
 			items[currentItemIndex].classList.toggle("selected");
-			items[currentItemIndex].classList.contains("bg-blue-100") ? items[currentItemIndex].classList.remove("bg-blue-100") : items[currentItemIndex].classList.add("bg-blue-100");
+			items[currentItemIndex].classList.contains("bg-blue-100")
+				? items[currentItemIndex].classList.remove("bg-blue-100")
+				: items[currentItemIndex].classList.add("bg-blue-100");
 			break;
 		case "Delete":
 			selectedItems = activeTabContent.querySelectorAll(".list-item.selected");
-			selectedItems.forEach((item) => { closeOpenedTab(item.id); item.remove(); });
+			selectedItems.forEach((item) => {
+				closeOpenedTab(item.id);
+				item.remove();
+			});
 			updateCounterText();
 			break;
 		default:
@@ -248,5 +259,7 @@ function init () {
 	});
 }
 
-
-init();
+// Ensure event listeners are added after DOM content is loaded
+document.addEventListener("DOMContentLoaded", (event) => {
+	init();
+});
