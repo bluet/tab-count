@@ -15,8 +15,44 @@ function addItems(tabContent, items, prefix) {
     <div class='truncated'><span style=cursor:pointer title='${prefix}${item.url}'>${item.title}</span></div>
     <span class="remove-btn text-red-500">❌</span>
   `;
+
+		// if click on the item, pass the tabID and windowID to the function goToOpenedTab
+		// if click on the remove button, pass the tabID to the function closeOpenedTab
+		listItem.addEventListener("click", (function (item) {
+			return function (event) {
+				console.log("listItem click");
+				console.log("listItem event.target: ", event.target);
+				if (event.target.classList.contains('remove-btn')) {
+					console.log("listItem remove-btn click");
+					closeOpenedTab(item.id);
+					e.target.parentElement.remove();
+					updateSearchPlaceholder();
+				} else {
+					console.log("listItem goToOpenedTab click");
+					goToOpenedTab(item.id, item.windowId);
+					updateSearchPlaceholder();
+				}
+			}
+		})(item));
+
 		tabContent.appendChild(listItem);
 	});
+}
+
+// function to display the selected tab
+function goToOpenedTab(tabID, windowID) {
+	console.log("goToOpenedTab tabID: ", tabID);
+	console.log("goToOpenedTab windowID: ", windowID);
+	chrome.windows.update(windowID, { focused: true });
+	chrome.tabs.update(tabID, { active: true });
+}
+
+// function to close the selected tab
+function closeOpenedTab(tabID) {
+	console.log("closeOpenedTab tabID: ", tabID);
+	chrome.tabs.remove(tabID);
+	// reload popup to refresh the count and links
+	window.location.reload();
 }
 
 
@@ -55,8 +91,10 @@ function init() {
 		addItems(document.getElementById('allWindow'), tabs, '');
 	});
 
+	// Initialize the labels of tabs
 	tabs.forEach(tab => {
 		tab.addEventListener('click', () => {
+			console.debug('click', tab);
 			const target = document.querySelector(tab.dataset.tabTarget);
 			tabContents.forEach(tabContent => {
 				tabContent.classList.remove('active');
@@ -154,9 +192,12 @@ function init() {
 	});
 
 	// Click event for removing items
+	// This doesn't work because the items are dynamically added
+	// Implemented the click event on the item itself
+	//
 	document.addEventListener('click', (e) => {
 		if (e.target.classList.contains('remove-btn')) {
-			e.target.parentElement.remove();
+			// e.target.parentElement.remove();
 			updateSearchPlaceholder();
 		}
 	});
