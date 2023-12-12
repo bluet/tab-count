@@ -3,13 +3,13 @@ let tab_activation_history = {};
 
 // set icon's tooltip
 function updateBadgeTitle (count) {
-	let iconTitle = "You have " + count + " open tab(s).";
+	const iconTitle = "You have " + count + " open tab(s).";
 	chrome.browserAction.setTitle({"title": iconTitle});
 }
 
 // set icon's text
 function updateBadgeText () {
-	let displayOption = localStorage["badgeDisplayOption"];
+	const displayOption = localStorage["badgeDisplayOption"];
 	if ( typeof displayOption == "undefined" || displayOption == "allWindows") {
 		chrome.browserAction.setBadgeText({"text": String(allWindowsTabCount)});
 		updateBadgeTitle(allWindowsTabCount);
@@ -34,7 +34,6 @@ function getAllStats (callback) {
 
 function displayResults (window_list) {
 	allWindowsTabCount = 0;
-	// windowCount = 0;
 	for (let i=0; i<window_list.length; i++) {
 		allWindowsTabCount += window_list[i].tabs.length;
 	}
@@ -55,11 +54,11 @@ function registerTabDedupeHandler () {
 						var dedupe = confirm(
 							"Duplicate tab detected. Switch to existing open tab?");
 						if (dedupe) {
-							// Switch to existing tab and make it active.
+						// Switch to existing tab and make it active.
 							chrome.tabs.update(oldTab.id, {"active": true}, () => {
-								// Make sure the window of that tab is also made active
+							// Make sure the window of that tab is also made active
 								chrome.windows.update(oldTab.windowId, {"focused": true}, () => {
-									// And kill the newly opened tab.
+								// And kill the newly opened tab.
 									chrome.tabs.remove(tabId);
 								});
 							});
@@ -73,13 +72,13 @@ function registerTabDedupeHandler () {
 function registerTabJanitor (days) {
 	/** Every X minutes, detect old unused tabs and remove them. */
 	setInterval(() => {
-		let keys = Object.keys(tab_activation_history);
-		let now = Date.now();
+		const keys = Object.keys(tab_activation_history);
+		const now = Date.now();
 		keys.forEach((tabId) => {
-			let ts = tab_activation_history[tabId];
-			if (ts - now > (1000 * 60 * 60 * 24 * days)) {
+			const ts = tab_activation_history[tabId];
+			if (now - ts > (1000 * 60 * 60 * 24 * days)) {
 				// tab was not activated for 5 days
-				chrome.tabs.remove(tabId);
+				chrome.tabs.remove(parseInt(tabId));
 			}
 		});
 	}, 1000*60*60);
