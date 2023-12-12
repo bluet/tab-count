@@ -3,42 +3,46 @@ let tab_activation_history = {};
 
 // set icon's tooltip
 function updateBadgeTitle (count) {
-	const iconTitle = "You have " + count + " open tab(s).";
-	chrome.browserAction.setTitle({"title": iconTitle});
+	const iconTitle = `You have ${count} open tab(s).`;
+	chrome.action.setTitle({ "title": iconTitle });
 }
 
 // set icon's text
 function updateBadgeText () {
-	const displayOption = localStorage["badgeDisplayOption"];
-	if ( typeof displayOption == "undefined" || displayOption == "allWindows") {
-		chrome.browserAction.setBadgeText({"text": String(allWindowsTabCount)});
-		updateBadgeTitle(allWindowsTabCount);
-	} else {
-		//Use callback
-		// FIXME: This feature is currently disabled from options.html and options.js
-		// count = getCurrentWindowTabs(updateCurrentWindowBadge);
+	chrome.storage.local.get(["badgeDisplayOption"], (result) => {
+		const displayOption = result.badgeDisplayOption;
+		if (typeof displayOption === "undefined" || displayOption === "allWindows") {
+			chrome.action.setBadgeText({ "text": String(allWindowsTabCount) });
+			updateBadgeTitle(allWindowsTabCount);
+		} else {
+			//Use callback
+			// FIXME: This feature is currently disabled from options.html and options.js
+			// count = getCurrentWindowTabs(updateCurrentWindowBadge);
 
-		// chrome.tabs.query({currentWindow:true}, function(tabs) {
-		//   chrome.browserAction.setBadgeText({text: String(tabs.length)});
-		//   updateBadgeTitle(tabs.length);
-		// });
-	}
+			// chrome.tabs.query({currentWindow:true}, function(tabs) {
+			//   chrome.browserAction.setBadgeText({text: String(tabs.length)});
+			//   updateBadgeTitle(tabs.length);
+			// });
+		}
+	});
 }
 
-//count all tabs in all windows
+// count all tabs in all windows
 function getAllStats (callback) {
-	chrome.windows.getAll({"populate": true}, (window_list) => {
+	chrome.windows.getAll({ "populate": true }, (window_list) => {
 		callback(window_list);
 	});
 }
 
 function displayResults (window_list) {
 	allWindowsTabCount = 0;
-	for (let i=0; i<window_list.length; i++) {
+	for (let i = 0; i < window_list.length; i++) {
 		allWindowsTabCount += window_list[i].tabs.length;
 	}
-	localStorage["windowsCount"] = window_list.length;
-	localStorage["allWindowsTabsCount"] = allWindowsTabCount;
+	chrome.storage.local.set({
+		"windowsCount": window_list.length,
+		"allWindowsTabsCount": allWindowsTabCount
+	});
 	updateBadgeText();
 }
 
@@ -47,18 +51,18 @@ function registerTabDedupeHandler () {
 		(tabId, changeInfo, tab) => {
 			if (changeInfo.url) {
 				// check if any other tabs with different Ids exist with same URL
-				chrome.tabs.query({"url": changeInfo.url}, (tabs) => {
+				chrome.tabs.query({ "url": changeInfo.url }, (tabs) => {
 					if (tabs.length == 2 && changeInfo.url != "chrome://newtab/") {
 						var oldTab = tabs[0].id == tabId ? tabs[1] : tabs[0];
 						// This is a new duplicate
 						var dedupe = confirm(
 							"Duplicate tab detected. Switch to existing open tab?");
 						if (dedupe) {
-						// Switch to existing tab and make it active.
-							chrome.tabs.update(oldTab.id, {"active": true}, () => {
-							// Make sure the window of that tab is also made active
-								chrome.windows.update(oldTab.windowId, {"focused": true}, () => {
-								// And kill the newly opened tab.
+							// Switch to existing tab and make it active.
+							chrome.tabs.update(oldTab.id, { "active": true }, () => {
+								// Make sure the window of that tab is also made active
+								chrome.windows.update(oldTab.windowId, { "focused": true }, () => {
+									// And kill the newly opened tab.
 									chrome.tabs.remove(tabId);
 								});
 							});
@@ -69,19 +73,21 @@ function registerTabDedupeHandler () {
 		});
 }
 
+// Use chrome.alarms instead of setInterval
 function registerTabJanitor (days) {
-	/** Every X minutes, detect old unused tabs and remove them. */
-	setInterval(() => {
-		const keys = Object.keys(tab_activation_history);
-		const now = Date.now();
-		keys.forEach((tabId) => {
-			const ts = tab_activation_history[tabId];
-			if (now - ts > (1000 * 60 * 60 * 24 * days)) {
-				// tab was not activated for 5 days
-				chrome.tabs.remove(parseInt(tabId));
-			}
-		});
-	}, 1000*60*60);
+	chrome.alarms.create("tabJanitor", { "periodInMinutes": 60 });
+	chrome.alarms.onAlarm.addListener((alarm) => {
+		if (alarm.name === "tabJanitor") {
+			const keys = Object.keys(tab_activation_history);
+			const now = Date.now();
+			keys.forEach((tabId) => {
+				const ts = tab_activation_history[tabId];
+				if (now - ts > 1000 * 60 * 60 * 24 * days) {
+					chrome.tabs.remove(parseInt(tabId));
+				}
+			});
+		}
+	});
 }
 
 /* Keeps track of the last timestamp each tab was activated */
@@ -120,13 +126,13 @@ function init () {
 	getAllStats(displayResults);
 
 	// Activate tab de-dupe detector if enabled in options.
-	if (localStorage["tabDedupe"]) {
+	if (chrome.storage.local["tabDedupe"]) {
 		registerTabDedupeHandler();
 	}
 
 	// Activate tab janitor if enabled.
-	if (localStorage["tabJanitor"]) {
-		registerTabJanitor(localStorage["tabJanitorDays"]);
+	if (chrome.storage.local["tabJanitor"]) {
+		registerTabJanitor(chrome.storage.local["tabJanitorDays"]);
 	}
 }
 
