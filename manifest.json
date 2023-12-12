@@ -17,7 +17,7 @@
   },
   
   "browser_action": {
-    "default_popup": "popup.html",
+    "default_popup": "popup.merged.html",
     "default_name": "Tab Count",
     "default_icon": "images/icon19.png",
     "default_title": "Tab Count"
