@@ -2,18 +2,22 @@
 <html>
 
   <head>
-    <title>TabCount Options</title>
+    <title>Tab Duke Options</title>
     <style>
-     body: { padding: 10px; }
+     body { padding: 10px; }
     </style>
   </head>
 
   <body>
-    <h3>Popup window</h3>
-    <form name="popupOptionsForm">
-      <label><input type="radio" id ="defaultPopupSelection" name="tabCountRadios" value="currentWindow">List tabs from the current window only<br></label>
-      <label><input type="radio" name="tabCountRadios" value="allWindows">List tabs from all windows<br></label>
+    <h3>Tab Duke Options</h3>
+    <p>Not just a tab man, not just a tab count, but a Tab Duke!</p>
+    <h4>Badge Display Options</h4>
+    <form id="popupOptionsForm">
+      <label><input type="radio" id="defaultPopupSelection" name="tabCountRadios" value="currentWindow">Show "tabs count in current window" on extension badge<br></label>
+      <label><input type="radio" name="tabCountRadios" value="allWindows">Show "tabs count in all windows" on extension badge<br></label>
+      <label><input type="radio" name="tabCountRadios" value="windowsCount">Show "windows count" on extension badge<br></label>
     </form>
+    <h4>Advanced Options</h4>
     <label><input type="checkbox" id="tabDedupe" name="tabDedupe" value="dedupe">Detect and prompt duplicate tab creation.<br></label>
     <label><input type="checkbox" id="tabJanitor" name="tabJanitor" value="tabJanitor"/>Auto-close tabs unused for more than 
       <input type="number" id="tabJanitorDays" name="tabJanitorDays" value="5" min="1" max="30"/> days.</label><br>
@@ -27,6 +31,6 @@
     <input type="button" id="refreshButton" value="Refresh Stats">
   </body>
 
-  <script src="js/options.js"></script>
+  <script src="options.js"></script>
 
 </html>

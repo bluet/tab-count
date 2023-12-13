@@ -93,20 +93,20 @@ function updateCounterText (count) {
 	const activeTabButton = document.querySelector(".tab-button.active");
 	if (activeTabButton.id === "tabTitleCurrent") {
 		const itemCount = count !== undefined ? count : currentWindowItems.length;
-		document.getElementById("tabTitleCurrent").innerHTML = `Current (${itemCount} )`;
+		document.getElementById("tabTitleCurrent").innerHTML = `Current ( ${itemCount} )`;
 		// count the number of windows and the number of tabs in all windows
 		chrome.windows.getAll({ "populate": true }, (window_list) => {
 			document.getElementById("tabTitleAll").innerHTML
-				= `All (${allWindowItems.length} in ${window_list.length})`;
+				= `All ( ${allWindowItems.length} in ${window_list.length} )`;
 		});
 	} else if (activeTabButton.id === "tabTitleAll") {
 		const itemCount = count !== undefined ? count : allWindowItems.length;
-		document.getElementById("tabTitleCurrent").innerHTML = `Current (${currentWindowItems.length} )`;
+		document.getElementById("tabTitleCurrent").innerHTML = `Current ( ${currentWindowItems.length} )`;
 		// count the number of windows
 		chrome.windows.getAll({ "populate": true }, (window_list) => {
 			// get the number of tabs in all windows
 			document.getElementById("tabTitleAll").innerHTML
-				= `All (${itemCount} in ${window_list.length})`;
+				= `All ( ${itemCount} in ${window_list.length} )`;
 		});
 	}
 }

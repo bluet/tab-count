@@ -1,3 +1,4 @@
+let windowsCount = 0;
 let allWindowsTabCount = 0;
 let tab_activation_history = {};
 
@@ -11,8 +12,17 @@ function updateBadgeTitle (count) {
 async function updateBadgeText () {
 	const { "badgeDisplayOption": displayOption } = await chrome.storage.local.get(["badgeDisplayOption"]);
 	if (!displayOption || displayOption === "allWindows") {
+		// show the tabs count in all windows
 		chrome.action.setBadgeText({ "text": String(allWindowsTabCount) });
 		updateBadgeTitle(allWindowsTabCount);
+	} else if (displayOption === "currentWindow") {
+		// show the tabs count in current window
+		let currentWindowTabs = chrome.tabs.query({ "currentWindow": true });
+		chrome.action.setBadgeText({ "text": String(currentWindowTabs.length) });
+	} else if (displayOption === "windowsCount") {
+		// show the windows count
+		chrome.action.setBadgeText({ "text": String(windowsCount) });
+		updateBadgeTitle(windowsCount);
 	}
 }
 
@@ -22,6 +32,7 @@ function getAllStats (callback) {
 }
 
 function displayResults (window_list) {
+	windowsCount = window_list.length;
 	allWindowsTabCount = window_list.reduce((count, win) => {return count + win.tabs.length;}, 0);
 	chrome.storage.local.set({
 		"windowsCount": window_list.length,
@@ -85,7 +96,13 @@ async function init () {
 	chrome.windows.onRemoved.addListener(() => {return getAllStats(displayResults);});
 
 	// to change badge text on switching current tab
-	chrome.windows.onFocusChanged.addListener(() => {return getAllStats(displayResults);});
+	chrome.windows.onFocusChanged.addListener(async () => {
+		// only if the badgeDisplayOption is set to "currentWindow"
+		const { "badgeDisplayOption": displayOption } = await chrome.storage.local.get(["badgeDisplayOption"]);
+		if (displayOption === "currentWindow") {
+			updateBadgeText();
+		}
+	});
 
 	// Initialize the stats to start off with.
 	getAllStats(displayResults);

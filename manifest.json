@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Tab Duke",
-  "version": "2.8",
+  "version": "0.0.1",
   "description": "Displays the count and list of open tabs from current or all windows (configurable) and allows you to select and/or close them. (A fork of Tab Count, and inspired by Tabman Tabs Manager.)",
   "action": {
     "default_popup": "popup.new.html",
