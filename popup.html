@@ -1,72 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-  <style>
-    body {
-      width: 320px;
-      font-size: 12px;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
-      /* margin: 2; */
-      /* padding: 0 10px 0 10px; */
-    }
-
-    p.box {
-      margin: 0px 0px 10px 0px;
-    }
-
-    #search {
-      margin: 0px 0px 10px 0px;
-      padding: 5px;
-      width: 100%;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
-    #tabsTable {
-      position: relative;
-      margin-bottom: 5px;
-      right: 3px;
-    }
-
-    #tabsTable tr {
-      display: block;
-      width: 300px;
-      border-bottom: 1px solid #ccc;
-    }
-
-    #tabsTable td {
-      padding: 5px 5px;
-    }
-
-    a.redlink {
-      color: #FF0000;
-    }
-
-    .truncated {
-      display: block;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .close-tab {
-      visibility: hidden;
-      color: red;
-      cursor: pointer;
-    }
-
-    #tabsTable tr:hover .close-tab {
-      visibility: visible;
-    }
-  </style>
-  <script src="js/popup.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>List Interaction Prototype</title>
+  <!-- Tailwind CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link href="popup.css" rel="stylesheet">
 </head>
 
-<body>
-  <p class='box' id='windowTabs'></p>
-  <input type="search" id="search" placeholder="Search" autofocus>
-  <table id='tabsTable'></table>
+<body class="bg-gray-100 font-sans">
+  <div class="container mx-auto">
+    <div class="bg-white shadow-lg rounded-lg">
+      <div class="border-b" id="tabMenu">
+        <ul class="flex">
+          <li class="tab-button active px-6 py-3 border-b-2 font-semibold text-sm" data-tab-target="#currentWindow" id="tabTitleCurrent">
+            Current Window</li>
+          <li class="tab-button px-6 py-3 border-b-2 font-semibold text-sm" data-tab-target="#allWindow" id="tabTitleAll">All Windows</li>
+        </ul>
+      </div>
+      <div class="p-1 relative">
+        <!-- <span class="search-icon">🔍</span> -->
+        <input type="text" placeholder=" 🔎 Search..."
+          class="search-bar pl-12 p-2 w-full rounded border border-gray-300" id="searchInput" autofocus>
+        <div id="currentWindow" class="tab-content active">
+          <!-- Repeat this block for each tab item in the current window -->
+        </div>
+        <div id="allWindow" class="tab-content">
+          <!-- Content for all windows will go here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
 </body>
 
 </html>
