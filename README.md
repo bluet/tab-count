@@ -4,7 +4,7 @@ This extension displays the count and list of open tabs from the current or all 
 
 Here is the source code of the Tab Duke extension for Google Chrome browser.
 
-Tab Duke is a fork of Tab Count and is inspired by Tabman Tabs Manager.
+Tab Duke is a heavily rewritten, updated fork of Tab Count and is inspired by Tabman Tabs Manager.
 
 - Tab Count
   - There has been no activity since 2016
