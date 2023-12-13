@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "description": "Displays the count and list of open tabs from current or all windows (configurable) and allows you to select and/or close them. (A fork of Tab Count, and inspired by Tabman Tabs Manager.)",
   "action": {
-    "default_popup": "popup.new.html",
+    "default_popup": "popup.html",
     "default_icon": {
       "16": "images/icon16.png",
       "48": "images/icon48.png",
