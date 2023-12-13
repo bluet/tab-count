@@ -1,0 +1,28 @@
+{
+  "name": "tab-duke",
+  "description": "Source for Google Chrome browser's TabCount extension.",
+  "version": "0.0.1",
+  "devDependencies": {
+    "@babel/eslint-parser": "^7.23.3",
+    "eslint": "^8.55.0",
+    "prettier-eslint": "^16.1.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/bluet/tab-count.git"
+  },
+  "keywords": [
+    "tab",
+    "management",
+    "chrome"
+  ],
+  "author": "BlueT - Matthew Lien <bluet@bluet.org>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bluet/tab-count/issues"
+  },
+  "homepage": "https://github.com/bluet/tab-count#readme"
+}
