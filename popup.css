@@ -90,3 +90,7 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.tab-active {
+  border-left: 5px solid #3182ce;
+}
