@@ -275,16 +275,6 @@ function scrollToItem (tabID, windowID) {
 				// item.scrollIntoView();
 				item.focus();
 				currentItemIndex = index;
-				// const container = allWindowContent.parentElement;
-				// const containerHeight = container.clientHeight;
-				// const currentItemOffsetTop = item.offsetTop;
-				// const currentItemHeight = item.clientHeight;
-
-				// if (currentItemOffsetTop < container.scrollTop) {
-				// 	container.scrollTop = currentItemOffsetTop;
-				// } else if (currentItemOffsetTop + currentItemHeight > container.scrollTop + containerHeight) {
-				// 	container.scrollTop = currentItemOffsetTop + currentItemHeight - containerHeight;
-				// }
 			}
 		});
 	} else if (currentWindowContent.classList.contains("active")) {
@@ -318,6 +308,132 @@ function scrollToCurrentItem () {
 			scrollToItem(currentTabId, currentWindowId);
 		});
 	});
+}
+
+function handleKeyDown (e) {
+
+	const currentTabIndex = [...tabs].findIndex((tab) => {
+		return tab.classList.contains("active");
+	});
+	const activeTabContent = document.querySelector(".tab-content.active");
+	const items = [...activeTabContent.querySelectorAll(".list-item")];
+
+	let newIndex;
+	let newTabIndex;
+	let selectedItems;
+
+	if (items.length === 0) {
+		return;
+	}
+
+	switch (e.key) {
+	case "ArrowLeft":
+		newTabIndex = (currentTabIndex - 1 + tabs.length) % tabs.length;
+		tabs[newTabIndex].click();
+		break;
+	case "ArrowRight":
+		newTabIndex = (currentTabIndex + 1) % tabs.length;
+		tabs[newTabIndex].click();
+		break;
+	case "ArrowUp":
+		if (searchInput === document.activeElement) {
+			// If the search input is focused, move focus to the last item
+			items[items.length - 1].focus();
+			currentItemIndex = items.length - 1;
+		} else {
+			newIndex = (currentItemIndex - 1 + items.length) % items.length;
+			items[newIndex].focus();
+			currentItemIndex = newIndex;
+		}
+		break;
+	case "ArrowDown":
+		if (searchInput === document.activeElement) {
+			// If the search input is focused, move focus to the first item
+			items[0].focus();
+			currentItemIndex = 0;
+		} else {
+			newIndex = (currentItemIndex + 1) % items.length;
+			items[newIndex].focus();
+			currentItemIndex = newIndex;
+		}
+		break;
+		// case 'Home':
+		//   searchInput.focus();
+		//   break;
+	case "End":
+		items[items.length - 1].focus();
+		currentItemIndex = items.length - 1;
+		break;
+	case " ":
+		e.preventDefault();
+		items[currentItemIndex].classList.toggle("selected");
+		items[currentItemIndex].classList.contains("bg-blue-100")
+			? items[currentItemIndex].classList.remove("bg-blue-100")
+			: items[currentItemIndex].classList.add("bg-blue-100");
+		break;
+	case "Delete":
+		selectedItems = activeTabContent.querySelectorAll(".list-item.selected");
+		selectedItems.forEach((item) => {
+			closeOpenedTab(item.id);
+			item.remove();
+		});
+		updateCounterText();
+		break;
+	case "Enter":
+		// If the search input is focused, go to the first item
+		if (searchInput === document.activeElement) {
+			items[0].focus();
+			currentItemIndex = 0;
+		} else {
+			goToOpenedTab(items[currentItemIndex].id, items[currentItemIndex].windowId);
+		}
+		break;
+	case "Escape":
+		// If the search input is focused, clear the search input and focus the current item
+		if (searchInput === document.activeElement && searchInput.value !== "") {
+			searchInput.value = "";
+			handleSearchInput();
+			e.preventDefault();
+		} else if (searchInput === document.activeElement) {
+			items[currentItemIndex].focus();
+			handleSearchInput();
+			e.preventDefault();
+		}
+		break;
+	default:
+		// if it's a special character, do nothing
+		if (e.key.length > 1) {
+			return;
+		}
+		// if anything else, assume it's a search term and focus the search input
+		searchInput.focus();
+		// searchInput.value += e.key;
+		break;
+	}
+
+	// e.preventDefault();
+}
+
+function handleSearchInput (e) {
+	const searchTerm = searchInput.value.toLowerCase();
+	const activeTabContent = document.querySelector(".tab-content.active");
+	const items = activeTabContent.querySelectorAll(".list-item");
+	let visibleCount = 0;
+
+	if (items.length === 0) {
+		return;
+	}
+
+	items.forEach((item) => {
+		const text = item.textContent.toLowerCase();
+		const isVisible = text.includes(searchTerm);
+		item.style.display = isVisible ? "flex" : "none";
+		if (isVisible) {
+			visibleCount++;
+		}
+	});
+
+	updateCounterText(visibleCount);
 }
 
 function init () {
@@ -369,125 +485,10 @@ function init () {
 		});
 	});
 
-	searchInput.addEventListener("input", () => {
-		const searchTerm = searchInput.value.toLowerCase();
-		const activeTabContent = document.querySelector(".tab-content.active");
-		const items = activeTabContent.querySelectorAll(".list-item");
-		let visibleCount = 0;
-
-		if (items.length === 0) {
-			return;
-		}
-
-		items.forEach((item) => {
-			const text = item.textContent.toLowerCase();
-			const isVisible = text.includes(searchTerm);
-			item.style.display = isVisible ? "flex" : "none";
-			if (isVisible) {
-				visibleCount++;
-			}
-		});
-
-		updateCounterText(visibleCount);
-	});
+	searchInput.addEventListener("input", handleSearchInput);
 
 	// Keyboard navigation and selection for list items
-	document.addEventListener("keydown", (e) => {
-		const currentTabIndex = [...tabs].findIndex((tab) => {
-			return tab.classList.contains("active");
-		});
-		const activeTabContent = document.querySelector(".tab-content.active");
-		const items = [...activeTabContent.querySelectorAll(".list-item")];
-
-		let newIndex;
-		let newTabIndex;
-		let selectedItems;
-
-		if (items.length === 0) {
-			return;
-		}
-
-		switch (e.key) {
-		case "ArrowLeft":
-			newTabIndex = (currentTabIndex - 1 + tabs.length) % tabs.length;
-			tabs[newTabIndex].click();
-			break;
-		case "ArrowRight":
-			newTabIndex = (currentTabIndex + 1) % tabs.length;
-			tabs[newTabIndex].click();
-			break;
-		case "ArrowUp":
-			if (searchInput === document.activeElement) {
-				// If the search input is focused, move focus to the last item
-				items[items.length - 1].focus();
-				currentItemIndex = items.length - 1;
-			} else {
-				newIndex = (currentItemIndex - 1 + items.length) % items.length;
-				items[newIndex].focus();
-				currentItemIndex = newIndex;
-			}
-			break;
-		case "ArrowDown":
-			if (searchInput === document.activeElement) {
-				// If the search input is focused, move focus to the first item
-				items[0].focus();
-				currentItemIndex = 0;
-			} else {
-				newIndex = (currentItemIndex + 1) % items.length;
-				items[newIndex].focus();
-				currentItemIndex = newIndex;
-			}
-			break;
-			// case 'Home':
-			//   searchInput.focus();
-			//   break;
-		case "End":
-			items[items.length - 1].focus();
-			currentItemIndex = items.length - 1;
-			break;
-		case " ":
-			e.preventDefault();
-			items[currentItemIndex].classList.toggle("selected");
-			items[currentItemIndex].classList.contains("bg-blue-100")
-				? items[currentItemIndex].classList.remove("bg-blue-100")
-				: items[currentItemIndex].classList.add("bg-blue-100");
-			break;
-		case "Delete":
-			selectedItems = activeTabContent.querySelectorAll(".list-item.selected");
-			selectedItems.forEach((item) => {
-				closeOpenedTab(item.id);
-				item.remove();
-			});
-			updateCounterText();
-			break;
-		case "Enter":
-			// If the search input is focused, go to the first item
-			if (searchInput === document.activeElement) {
-				items[0].focus();
-				currentItemIndex = 0;
-			} else {
-				goToOpenedTab(items[currentItemIndex].id, items[currentItemIndex].windowId);
-			}
-			break;
-		case "Escape":
-			// If the search input is focused, clear the search input and focus the current item
-			if (searchInput === document.activeElement) {
-				searchInput.value = "";
-				items[currentItemIndex].focus();
-			} else {
-				searchInput.focus();
-			}
-			break;
-		default:
-			// if it's a special character, do nothing
-			if (e.key.length > 1) {
-				return;
-			}
-			// if anything else, assume it's a search term and focus the search input
-			searchInput.focus();
-			break;
-		}
-	});
+	document.addEventListener("keydown", handleKeyDown);
 
 	scrollToCurrentItem();
 }
