@@ -3,70 +3,70 @@ const tabContents = document.querySelectorAll(".tab-content");
 const searchInput = document.getElementById("searchInput");
 let currentItemIndex = 0;
 
-function addItems (tabContent, items, prefix) {
-	const windowMap = new Map();
+// function addItems (tabContent, items, prefix) {
+// 	const windowMap = new Map();
 
-	items.forEach((item, tabIndex) => {
-		if (!windowMap.has(item.windowId)) {
-			windowMap.set(item.windowId, []);
-		}
-		windowMap.get(item.windowId).push(item);
-	});
+// 	items.forEach((item, tabIndex) => {
+// 		if (!windowMap.has(item.windowId)) {
+// 			windowMap.set(item.windowId, []);
+// 		}
+// 		windowMap.get(item.windowId).push(item);
+// 	});
 
-	windowMap.forEach((items, windowId) => {
-		const windowDiv = document.createElement("div");
-		windowDiv.classList.add("window");
-		windowDiv.innerHTML = `<h2>Window ${windowId}</h2>`;
+// 	windowMap.forEach((items, windowId) => {
+// 		const windowDiv = document.createElement("div");
+// 		windowDiv.classList.add("window");
+// 		windowDiv.innerHTML = `<h2>Window ${windowId}</h2>`;
 
-		items.forEach((item, tabIndex) => {
-			const listItem = document.createElement("div");
-			listItem.classList.add("flex", "items-center", "p-2", "rounded", "list-item");
-			if (item.active) {
-				listItem.classList.add("tab-active");
-			}
-			listItem.tabIndex = tabIndex;
-			listItem.tabid = item.id;
-			listItem.innerHTML = `
-			<img class="mr-2" width='16' height='16' src="${item.favIconUrl}" alt="favicon">
-			<div class='truncated'><span style=cursor:pointer tabid=${item.id} title='${prefix}${item.url}'>${item.title}</span></div>
-			<span class="remove-btn text-red-500">❌</span>
-			`;
+// 		items.forEach((item, tabIndex) => {
+// 			const listItem = document.createElement("div");
+// 			listItem.classList.add("flex", "items-center", "p-2", "rounded", "list-item");
+// 			if (item.active) {
+// 				listItem.classList.add("tab-active");
+// 			}
+// 			listItem.tabIndex = tabIndex;
+// 			listItem.tabid = item.id;
+// 			listItem.innerHTML = `
+// 			<img class="mr-2" width='16' height='16' src="${item.favIconUrl}" alt="favicon">
+// 			<div class='truncated'><span style=cursor:pointer tabid=${item.id} title='${prefix}${item.url}'>${item.title}</span></div>
+// 			<span class="remove-btn text-red-500">❌</span>
+// 			`;
 
-			// if click on the item, pass the tabID and windowID to the function goToOpenedTab
-			// if click on the remove button, pass the tabID to the function closeOpenedTab
-			listItem.addEventListener(
-				"click",
-				(function (item) {
-					return function (event) {
-						// console.log("listItem click");
-						// console.log("listItem event.target: ", event.target);
-						if (event.target.classList.contains("remove-btn")) {
-							// console.log("listItem remove-btn click");
-							// event.target.parentElement.remove();
-							// need to remove the item from both lists
-							removeItemFromLists(item.id);
-							closeOpenedTab(item.id);
-							updateCounterText();
-						} else {
-							// console.log("listItem goToOpenedTab click");
-							goToOpenedTab(item.id, item.windowId);
-							updateCounterText();
-						}
-					};
-				})(item)
-			);
+// 			// if click on the item, pass the tabID and windowID to the function goToOpenedTab
+// 			// if click on the remove button, pass the tabID to the function closeOpenedTab
+// 			listItem.addEventListener(
+// 				"click",
+// 				(function (item) {
+// 					return function (event) {
+// 						// console.log("listItem click");
+// 						// console.log("listItem event.target: ", event.target);
+// 						if (event.target.classList.contains("remove-btn")) {
+// 							// console.log("listItem remove-btn click");
+// 							// event.target.parentElement.remove();
+// 							// need to remove the item from both lists
+// 							removeItemFromLists(item.id);
+// 							closeOpenedTab(item.id);
+// 							updateCounterText();
+// 						} else {
+// 							// console.log("listItem goToOpenedTab click");
+// 							goToOpenedTab(item.id, item.windowId);
+// 							updateCounterText();
+// 						}
+// 					};
+// 				})(item)
+// 			);
 
-			// if this is the current active tab in the current window, focus on it
-			if (item.active) {
-				listItem.focus();
-			}
+// 			// if this is the current active tab in the current window, focus on it
+// 			if (item.active) {
+// 				listItem.focus();
+// 			}
 
-			windowDiv.appendChild(listItem);
-		});
+// 			windowDiv.appendChild(listItem);
+// 		});
 
-		tabContent.appendChild(windowDiv);
-	});
-}
+// 		tabContent.appendChild(windowDiv);
+// 	});
+// }
 
 function addItemsToBoth (items, currentWindowId) {
 	const tabContentCurrent = document.getElementById("currentWindow");
@@ -80,91 +80,16 @@ function addItemsToBoth (items, currentWindowId) {
 		windowMap.get(item.windowId).push(item);
 	});
 
-	windowMap.forEach((items, windowId) => {
+	windowMap.forEach((items, windowID) => {
 		const windowDivAllWindows = document.createElement("div");
-		windowDivAllWindows.windowId = windowId;
+		windowDivAllWindows.windowId = windowID;
 		windowDivAllWindows.classList.add("window");
-		windowDivAllWindows.innerHTML = `<h2>Window ${windowId}</h2>`;
+		windowDivAllWindows.innerHTML = `<h2>Window ${windowID}</h2>`;
 		const windowDivCurrentWindow = windowDivAllWindows.cloneNode(true);
 
 		items.forEach((item, tabIndex) => {
-			const listItemAllWindows = document.createElement("div");
-			const tabID = item.id;
-
-			listItemAllWindows.classList.add("flex", "items-center", "p-2", "rounded", "list-item");
-			if (item.active) {
-				listItemAllWindows.classList.add("tab-active");
-			}
-			listItemAllWindows.tabIndex = tabIndex;
-			listItemAllWindows.tabid = tabID;
-			listItemAllWindows.innerHTML = `
-			<img class="mr-2" width='16' height='16' src="${item.favIconUrl}" alt="favicon">
-			<div class='truncated'><span style=cursor:pointer tabid=${tabID} title='${item.url}'>${item.title}</span></div>
-			<span class="remove-btn text-red-500">❌</span>
-			`;
-
-			const listItemCurrentWindow = listItemAllWindows.cloneNode(true);
-			// if (windowId === currentWindowId) {
-			// 	console.log("listItemCurrentWindow: ", listItemCurrentWindow);
-			// }
-
-			listItemCurrentWindow.classList.add("flex", "items-center", "p-2", "rounded", "list-item");
-			if (item.active) {
-				listItemCurrentWindow.classList.add("tab-active");
-			}
-			listItemCurrentWindow.tabIndex = tabIndex;
-			listItemCurrentWindow.tabid = tabID;
-			listItemCurrentWindow.innerHTML = `
-			<img class="mr-2" width='16' height='16' src="${item.favIconUrl}" alt="favicon">
-			<div class='truncated'><span style=cursor:pointer tabid=${tabID} title='${item.url}'>${item.title}</span></div>
-			<span class="remove-btn text-red-500">❌</span>
-			`;
-
-			// if click on the item, pass the tabID and windowID to the function goToOpenedTab
-			// if click on the remove button, pass the tabID to the function closeOpenedTab
-			listItemAllWindows.addEventListener(
-				"click",
-				(function (item) {
-					return function (event) {
-						// console.log("listItem click");
-						// console.log("listItem event.target: ", event.target);
-						if (event.target.classList.contains("remove-btn")) {
-							// console.log("listItem remove-btn click");
-							// event.target.parentElement.remove();
-							// need to remove the item from both lists
-							removeItemFromLists(item.id);
-							closeOpenedTab(item.id);
-							updateCounterText();
-						} else {
-							// console.log("listItem goToOpenedTab click");
-							goToOpenedTab(item.id, item.windowId);
-							updateCounterText();
-						}
-					};
-				})(item)
-			);
-
-			listItemCurrentWindow.addEventListener(
-				"click",
-				(function (item) {
-					return function (event) {
-						// console.log("listItem click");
-						// console.log("listItem event.target: ", event.target);
-						if (event.target.classList.contains("remove-btn")) {
-							// console.log("listItem remove-btn click");
-							// event.target.parentElement.remove();
-							// need to remove the item from both lists
-							removeItemFromLists(item.id);
-							closeOpenedTab(item.id);
-							updateCounterText();
-						} else {
-							// console.log("listItem goToOpenedTab click");
-							goToOpenedTab(item.id, item.windowId);
-							updateCounterText();
-						}
-					};
-				})(item)
-			);
+			const listItemAllWindows = buildListItem(item, tabIndex);
+			const listItemCurrentWindow = buildListItem(item, tabIndex);
 
 			// if this is the current active tab in the current window, focus on it
 			if (item.active) {
@@ -173,7 +98,7 @@ function addItemsToBoth (items, currentWindowId) {
 			}
 
 			windowDivAllWindows.appendChild(listItemAllWindows);
-			if (windowId === currentWindowId) {
+			if (windowID === currentWindowId) {
 				windowDivCurrentWindow.appendChild(listItemCurrentWindow);
 			}
 		});
@@ -182,10 +107,50 @@ function addItemsToBoth (items, currentWindowId) {
 		// console.log("windowId: ", windowId);
 		// console.log("chrome.windows.WINDOW_ID_CURRENT: ", chrome.windows.WINDOW_ID_CURRENT);
 		// console.log("currentWindowId: ", currentWindowId);
-		if (windowId === currentWindowId) {
+		if (windowID === currentWindowId) {
 			tabContentCurrent.appendChild(windowDivCurrentWindow);
 		}
 	});
+}
+
+function buildListItem (data, tabIndex) {
+	const listItem = document.createElement("div");
+	const tabID = data.id;
+	listItem.classList.add("flex", "items-center", "p-2", "rounded", "list-item");
+	if (data.active) {
+		listItem.classList.add("tab-active");
+	}
+	listItem.tabIndex = tabIndex;
+	listItem.tabid = tabID;
+	listItem.innerHTML = `
+	<img class="mr-2" width='16' height='16' src="${data.favIconUrl}" alt="favicon">
+	<div class='truncated'><span style=cursor:pointer tabid=${tabID} title='${data.url}'>${data.title}</span></div>
+	<span class="remove-btn text-red-500">❌</span>
+	`;
+
+	listItem.addEventListener(
+		"click",
+		(function (data) {
+			return function (event) {
+				// console.log("listItem click");
+				// console.log("listItem event.target: ", event.target);
+				if (event.target.classList.contains("remove-btn")) {
+					// console.log("listItem remove-btn click");
+					// event.target.parentElement.remove();
+					// need to remove the item from both lists
+					removeItemFromLists(data.id);
+					closeOpenedTab(data.id);
+					updateCounterText();
+				} else {
+					// console.log("listItem goToOpenedTab click");
+					goToOpenedTab(data.id, data.windowId);
+					updateCounterText();
+				}
+			};
+		})(data)
+	);
+
+	return listItem;
 }
 
 function removeItemFromLists (tabID) {
@@ -417,7 +382,7 @@ function init () {
 		items.forEach((item) => {
 			const text = item.textContent.toLowerCase();
 			const isVisible = text.includes(searchTerm);
-			item.style.display = isVisible ? "block" : "none";
+			item.style.display = isVisible ? "flex" : "none";
 			if (isVisible) {
 				visibleCount++;
 			}
