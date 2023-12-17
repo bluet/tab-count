@@ -1,4 +1,4 @@
-# Tab Duke - Tab management Chrome extension
+# Tab Duke tab manager for Chrome (extension)
 
 ## Intro
 
